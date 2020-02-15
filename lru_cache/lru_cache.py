@@ -40,4 +40,16 @@ class LRUCache:
     the newly-specified value.
     """
     def set(self, key, value):
-        pass
+        if key in self.storage: #if the key exists in the dict
+            node = self.storage[key] #node references key
+            node.value = (key, value) 
+            self.list.move_to_front(node)
+            return
+        if self.size == self.limit:
+            del self.storage[self.list.tail.value[0]] #removes it from dict
+            self.list.remove_from_tail() #removes it from linked list
+            self.size -= 1
+    
+        self.list.add_to_head((key, value))
+        self.storage[key] = self.list.head
+        self.size += 1
