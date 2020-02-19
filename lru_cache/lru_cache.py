@@ -9,10 +9,9 @@ class LRUCache:
     to every node stored in the cache.
     """
     def __init__(self, limit=10):
-        self.limit = limit 
-        self.size = 0 # Current size 
-        self.list = DoublyLinkedList()
-        self.storage = {} # Empty dictionary
+        self.size = 0
+        self.storage = DoublyLinkedList()
+        self.dictionary = vars(self.storage)
 
     """
     Retrieves the value associated with the given key. Also
@@ -22,12 +21,17 @@ class LRUCache:
     key-value pair doesn't exist in the cache.
     """
     def get(self, key):
-        if key not in self.storage:  #if the key isn't in dictionary, 
+
+        if key:
+        
+            item = self.dictionary.get(key)
+            return item
+        elif key != self.dictionary.values() or key != self.dictionary.keys():
             return None
-        else:
-            value = self.storage[key] 
-            self.list.move_to_end(value) 
-            return value.value[1]
+        elif key != self.dictionary.values() and key != self.dictionary.keys():
+            return None
+        elif key is not self.dictionary[key]:
+            return None
 
     """
     Adds the given key-value pair to the cache. The newly-
@@ -40,16 +44,16 @@ class LRUCache:
     the newly-specified value.
     """
     def set(self, key, value):
-        if key in self.storage: #if the key exists in the dict
-            node = self.storage[key] #node references key
-            node.value = (key, value) 
-            self.list.move_to_front(node)
-            return
-        if self.size == self.limit:
-            del self.storage[self.list.tail.value[0]] #removes it from dict
-            self.list.remove_from_tail() #removes it from linked list
-            self.size -= 1
-    
-        self.list.add_to_head((key, value))
-        self.storage[key] = self.list.head
+        self.dictionary[key] = value
+        self.storage.add_to_head((key,value))
         self.size += 1
+        if self.size == 10:
+            max = self.storage.get_max()
+            self.storage.delete(max)
+            self.size -= 1
+        # self.dictionary.get(key)
+        elif key is self.dictionary.get(key):
+            
+            self.dictionary.update(key, value)
+        else:
+            return None
