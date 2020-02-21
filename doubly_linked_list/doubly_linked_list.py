@@ -170,3 +170,4 @@ class DoublyLinkedList:
             # Shift current node to next node
             current = current.next
         return max_value
+

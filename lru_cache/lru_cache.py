@@ -9,9 +9,9 @@ class LRUCache:
     to every node stored in the cache.
     """
     def __init__(self, limit=10):
-        self.size = 0
-        self.storage = DoublyLinkedList()
-        self.dictionary = vars(self.storage)
+        self.limit = limit
+        self.storage = {}
+        self.lru = DoublyLinkedList()
 
     """
     Retrieves the value associated with the given key. Also
@@ -21,17 +21,14 @@ class LRUCache:
     key-value pair doesn't exist in the cache.
     """
     def get(self, key):
+        # key not found, return None
+        if key not in self.storage:
+            return None
 
-        if key:
-        
-            item = self.dictionary.get(key)
-            return item
-        elif key != self.dictionary.values() or key != self.dictionary.keys():
-            return None
-        elif key != self.dictionary.values() and key != self.dictionary.keys():
-            return None
-        elif key is not self.dictionary[key]:
-            return None
+        # key found, return value and update lru
+        else:
+            self.lru.move_to_front(self.storage[key])
+            return self.storage[key].value[1]
 
     """
     Adds the given key-value pair to the cache. The newly-
@@ -44,16 +41,18 @@ class LRUCache:
     the newly-specified value.
     """
     def set(self, key, value):
-        self.dictionary[key] = value
-        self.storage.add_to_head((key,value))
-        self.size += 1
-        if self.size == 10:
-            max = self.storage.get_max()
-            self.storage.delete(max)
-            self.size -= 1
-        # self.dictionary.get(key)
-        elif key is self.dictionary.get(key):
-            
-            self.dictionary.update(key, value)
+        # key already in dict, update value and lru
+        if key in self.storage:
+            self.storage[key].value[1] = value
+            self.lru.move_to_front(self.storage[key])
+            return
+
+        # key not in dict. add to dict, store key and val in lru
         else:
-            return None
+            node = self.lru.add_to_head([key, value])
+            self.storage[key] = node
+
+        # exceeded size limit, get last item in lru, and remove it from lru and dict
+        if len(self.lru) > self.limit:
+            removed = self.lru.remove_from_tail()
+            self.storage.pop(removed[0])
